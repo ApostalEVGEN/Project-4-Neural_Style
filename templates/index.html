@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перенос стиля</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="file"] {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        .loader {
+            display: none;
+            margin: 20px auto;
+            border: 6px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 6px solid #4CAF50;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result img {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Перенос стиля</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <label for="style_image">Загрузите изображение стиля:</label><br>
+            <input type="file" name="style_image" id="style_image" accept="image/*" required><br><br>
+            <label for="content_image">Загрузите изображение контента:</label><br>
+            <input type="file" name="content_image" id="content_image" accept="image/*" required><br><br>
+            <button type="submit">Загрузить и обработать</button>
+        </form>
+        <div class="loader"></div>
+        <div class="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const loader = document.querySelector('.loader');
+        const resultDiv = document.querySelector('.result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loader.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка обработки изображения.');
+                }
+
+                const blob = await response.blob();
+                const imgURL = URL.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = imgURL;
+                resultDiv.appendChild(img);
+
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
